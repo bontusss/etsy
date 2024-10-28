@@ -9,21 +9,38 @@ app.get("/", (req, res) => {
 });
 
 // Connect mongodb
-mongoose
-  .connect("mongodb+srv://etsy:etsy2024@cluster0.vvdwr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-  .then(() => console.log("Connected!"));
+const connectedb = async (req, res) => {
+  try{
+    await mongoose.connect("mongodb+srv://weather-api:weatherapi2024@cluster0.9orjr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    console.log("you are connected to database")
+  } catch (err){
+    console.log(err)
+  }
+}
 
 
-const schema = mongoose.Schema
-const objectID = schema.ObjectId
+const user_data = new mongoose.Schema({
+  firstname: {type:String, required:true},
+  lastname:{type:String, required:true},
+  age:{type:Number, required:true}
+})
+const user = mongoose.model("user_data", user_data)
 
-const Post = new schema({
-    id: objectID,
-    content: {type: String, max: 100},
-    productName: String,
-    created_at: Date
+const save_user = new user({
+  firstname: "elvis",
+  lastname: "david",
+  age: 30
 })
 
+save_user.save()
+.then(()=> {
+  console.log("saved successfully")
+})
+.catch((err)=> {
+  console.log(err)
+})
+
+connectedb()
 // Start the node
 app.listen(PORT, () => {
   console.log(`Welcome to the Etsy developer API, The Service is running on ${PORT}`);
