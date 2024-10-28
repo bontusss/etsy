@@ -9,20 +9,37 @@ app.get("/", (req, res) => {
 });
 
 // Connect mongodb
-mongoose
-  .connect("mongodb+srv://etsy:etsy2024@cluster0.vvdwr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-  .then(() => console.log("Connected!"));
+const dbconnect = async () => {
+  try{
+    await mongoose.connect("mongodb+srv://TodoApi:promzee2024@cluster0.ntqfd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    console.log("you are connected to db")
+  } catch (err){
+    console.error(err)
+  }
+}
 
-
-const schema = mongoose.Schema
-const objectID = schema.ObjectId
-
-const Post = new schema({
-    id: objectID,
-    content: {type: String, max: 100},
-    productName: String,
-    created_at: Date
+const user = new mongoose.Schema({
+  firstname:{type:String, required:true},
+  age:{type:Number, required:true}
 })
+
+const usersinfo = mongoose.model("user", user);
+
+const user_data = new usersinfo({
+  firstname: "promise",
+  age: "40"
+})
+
+user_data.save()
+.then(()=> {
+   console.log("saved succeffully")
+}) 
+.catch((err)=>{
+  console.log(err)
+})
+
+
+dbconnect()
 
 // Start the node
 app.listen(PORT, () => {
