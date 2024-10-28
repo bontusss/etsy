@@ -1,11 +1,15 @@
 const mongoose = require("mongoose");
 const express = require("express");
-const PORT = 2500
+const bodyParser = require("body-parser"); // Import body-parser
+const PORT = 2500;
 
 const app = express();
 
+// Middleware to parse JSON bodies
+app.use(bodyParser.json());
+
 app.get("/", (req, res) => {
-  res.send("Helllo world");
+  res.send("Hello world");
 });
 
 async function connectToDatabase() {
@@ -19,18 +23,9 @@ async function connectToDatabase() {
 }
 
 connectToDatabase();
-  
 
-
-const schema = mongoose.Schema
-const objectID = schema.ObjectId
-
-// const Post = new schema({
-//     id: objectID,
-//     content: {type: String, max: 100},
-//     productName: String,
-//     created_at: Date
-// });
+const schema = mongoose.Schema;
+const objectID = schema.ObjectId;
 
 const postSchema = new schema({
   id: objectID,
@@ -38,7 +33,6 @@ const postSchema = new schema({
   productName: String,
   created_at: { type: Date, default: Date.now }
 });
-
 
 const Post = mongoose.model("Post", postSchema);
 
@@ -56,13 +50,13 @@ app.post("/add-post", async (req, res) => {
   }
 });
 
-// Test Route
-app.get("/", (req, res) => {
-  res.send("Hello world");
+// Generic error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something went wrong!");
 });
 
-
-// Start the node
+// Start the server
 app.listen(PORT, () => {
   console.log(`Welcome to the Etsy developer API, The Service is running on ${PORT}`);
 });

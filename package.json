@@ -19,6 +19,7 @@
   "author": "Bontus Mayor",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.20.3",
     "express": "^4.21.1",
     "mongoose": "^8.7.3"
   }
