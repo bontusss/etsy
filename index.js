@@ -5,7 +5,7 @@ const PORT = 2500;
 
 const app = express();
 
-// Middleware to parse JSON bodies
+// Middleware to parse JSON request bodies
 app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
@@ -18,7 +18,7 @@ async function connectToDatabase() {
     console.log("Connected to MongoDB!");
   } catch (error) {
     console.error("Failed to connect to MongoDB:", error.message);
-    process.exit(1); // Optionally exit the process if the connection fails
+    process.exit(1); // Exit the process if the connection fails
   }
 }
 
@@ -31,7 +31,7 @@ const postSchema = new schema({
   id: objectID,
   content: { type: String, max: 100 },
   productName: String,
-  created_at: { type: Date, default: Date.now }
+  created_at: { type: Date, default: Date.now },
 });
 
 const Post = mongoose.model("Post", postSchema);
@@ -39,7 +39,7 @@ const Post = mongoose.model("Post", postSchema);
 // Define a route to save data
 app.post("/add-post", async (req, res) => {
   const { content, productName } = req.body;
-  
+
   try {
     const newPost = new Post({ content, productName });
     await newPost.save();
@@ -50,13 +50,7 @@ app.post("/add-post", async (req, res) => {
   }
 });
 
-// Generic error handler
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something went wrong!");
-});
-
-// Start the server
+// Start the node server
 app.listen(PORT, () => {
   console.log(`Welcome to the Etsy developer API, The Service is running on ${PORT}`);
 });
