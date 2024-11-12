@@ -1,30 +1,22 @@
 const mongoose = require("mongoose");
-const express = require("express");
-const PORT = 2500
+require('dotenv').config();
+const app = require("./app");
 
-const app = express();
+const PORT = process.env.PORT || 5000;
+const dbUrl = process.env.DATABASE_URL;
 
-app.get("/", (req, res) => {
-  res.send("Helllo world");
-});
+// Connect to MongoDB
+mongoose.connect(dbUrl, {
 
-// Connect mongodb
-mongoose
-  .connect("mongodb+srv://etsy:etsy2024@cluster0.vvdwr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-  .then(() => console.log("Connected!"));
-
-
-const schema = mongoose.Schema
-const objectID = schema.ObjectId
-
-const Post = new schema({
-    id: objectID,
-    content: {type: String, max: 100},
-    productName: String,
-    created_at: Date
 })
+.then(() => console.log("MongoDB connected"))
+.catch((err) => console.log(err));
 
-// Start the node
+
+
+
+
+// Start server
 app.listen(PORT, () => {
-  console.log(`Welcome to the Etsy developer API, The Service is running on ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
