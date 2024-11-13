@@ -1,3 +1,137 @@
-c
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
+const Country = require('../models/country');
 
-const router = express.router()
+const router = express.Router();
+
+//country
+router.post('/country', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  const { capital, continent, name } = req.body;
+  if (!name || !continent || !capital) return res.status(400).json({ message: 'All fields are required' });
+
+  try {
+    // Convert the inputs to uppercase before saving
+    const nameUpper = name.toUpperCase();
+    const capitalUpper = capital.toUpperCase();
+    const continentUpper = continent.toUpperCase();
+
+    // Check if the country already exists (case-insensitive)
+    const existingCountry = await Country.findOne({ name: { $regex: new RegExp('^' + nameUpper + '$', 'i') } });
+    if (existingCountry) return res.status(400).json({ message: 'Country already added' });
+
+    // Create a new country document with uppercase fields
+    const country = new Country({ 
+      name: nameUpper, 
+      capital: capitalUpper, 
+      continent: continentUpper 
+    });
+    await country.save();
+
+    res.status(201).json({ message: 'Country added successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Registration failed', error: error.message });
+  }
+});
+
+
+
+// Get countries by name
+router.get('/country/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  const { name } = req.params;
+
+  if (!name) {
+    return res.status(400).json({ message: 'Country name is required' });
+  }
+
+  // Convert input to uppercase
+  const countryName = name.toUpperCase();
+
+  console.log(`Searching for country: ${countryName}`);
+
+  try {
+    // Ensure that the country names in the database are also stored or queried in uppercase
+    const country = await Country.findOne({ name: countryName });
+
+    if (!country) {
+      return res.status(404).json({ message: 'Country not found' });
+    }
+
+    console.log('Country found:', country);
+    res.status(200).json(country);
+  } catch (error) {
+    console.error('Error retrieving country:', error);
+    res.status(500).json({ message: 'Error retrieving country', error: error.message });
+  }
+});
+
+
+// Update country details by name
+//PATCH
+router.patch('/country/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  const { name } = req.params;
+  const { capital, continent } = req.body;
+
+  if (!capital && !continent) {
+    return res.status(400).json({ message: 'At least one field (capital or continent) is required to update' });
+  }
+
+  // Convert input to uppercase
+  const countryName = name.toUpperCase();
+  const capitalUpper = capital ? capital.toUpperCase() : null;
+  const continentUpper = continent ? continent.toUpperCase() : null;
+
+  try {
+    // Find the country by name
+    const country = await Country.findOne({ name: countryName });
+
+    if (!country) {
+      return res.status(404).json({ message: 'Country not found' });
+    }
+
+    // Update the fields if provided
+    if (capitalUpper) country.capital = capitalUpper;
+    if (continentUpper) country.continent = continentUpper;
+
+    // Save the updated country document
+    await country.save();
+
+    res.status(200).json({ message: 'Country updated successfully', country });
+  } catch (error) {
+    console.error('Error updating country:', error);
+    res.status(500).json({ message: 'Error updating country', error: error.message });
+  }
+});
+
+
+// Delete a country by name
+router.delete('/country/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  const { name } = req.params;
+
+  if (!name) {
+    return res.status(400).json({ message: 'Country name is required' });
+  }
+
+  // Convert input to uppercase
+  const countryName = name.toUpperCase();
+
+  try {
+    // Find and delete the country by name
+    const country = await Country.findOneAndDelete({ name: countryName });
+
+    if (!country) {
+      return res.status(404).json({ message: 'Country not found' });
+    }
+
+    res.status(200).json({ message: 'Country deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting country:', error);
+    res.status(500).json({ message: 'Error deleting country', error: error.message });
+  }
+});
+
+
+
+  
+
+  module.exports = router;

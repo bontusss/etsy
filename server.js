@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const authRoutes = require('./routes/auth');
+const otherRoutes = require('./routes/routes')
 require('./config/passport')(passport);
 
 const app = express();
@@ -21,6 +22,8 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Routes
 app.use('/api', authRoutes);
+app.use('/api', otherRoutes);
 
-const PORT = process.env.PORT || 5000;
+
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
