@@ -5,5 +5,3 @@ const { generateBasicUsername, generateUsernameWithNumbers, generateCustomUserna
 console.log('Basic Username:', generateBasicUsername());
 console.log('Username with Numbers:', generateUsernameWithNumbers());
 console.log('Custom Username:', generateCustomUsername(['Happy', 'Sad'], ['Cat', 'Dog']));
-
-
