@@ -9,7 +9,7 @@ const router = express.Router();
 // Registration
 router.post('/register', async (req, res) => {
   const { email, password, fullname } = req.body;
-  if (!email || !password || !fullname) return res.status(400).json({ message: 'All fields are required' });
+  if (email === "" || !password || !fullname) return res.status(400).json({ message: 'All fields are required' });
   if (password.length < 6) return res.status(400).json({ message: 'Password must be at least 6 characters long' });
 
   try {
@@ -19,7 +19,7 @@ router.post('/register', async (req, res) => {
     const user = new User({ email, password, fullname });
     await user.save();
 
-    res.status(201).json({ message: 'User registered successfully' });
+    res.status(201).json({ message: 'User registered successfully', fullname, username });
   } catch (error) {
     res.status(500).json({ message: 'Registration failed' });
   }

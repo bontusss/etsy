@@ -7,37 +7,215 @@ const router = express.Router();
 
 //country
 router.post('/country', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  const { capital, continent, name } = req.body;
-  if (!name || !continent || !capital) return res.status(400).json({ message: 'All fields are required' });
+  const { name, capital, continent, population, demonym, currency, language, numericCode, timeZone, flag } = req.body;
+
+  // Validate required fields
+  if (!name || !capital || !continent || !population || !demonym || !currency || !language || !numericCode || !timeZone || !flag) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
 
   try {
-    // Convert the inputs to uppercase before saving
+    // Convert the relevant fields to uppercase
     const nameUpper = name.toUpperCase();
     const capitalUpper = capital.toUpperCase();
     const continentUpper = continent.toUpperCase();
+    const demonymUpper = demonym.toUpperCase();
+    const currencyUpper = currency.toUpperCase();
+    const numericCodeUpper = numericCode.toUpperCase();
 
-    // Check if the country already exists (case-insensitive)
-    const existingCountry = await Country.findOne({ name: { $regex: new RegExp('^' + nameUpper + '$', 'i') } });
-    if (existingCountry) return res.status(400).json({ message: 'Country already added' });
+
+    // Convert language and timeZone arrays to uppercase if they are arrays
+    const languageUpper = language.map(lang => lang.toUpperCase());
+    const timeZoneUpper = timeZone.map(zone => zone.toUpperCase());
+
+    // Check if the country already exists (case-insensitive) by name
+    const existingCountry = await Country.findOne({
+      name: { $regex: new RegExp('^' + nameUpper + '$', 'i') },
+    });
+
+    if (existingCountry) {
+      return res.status(400).json({ message: 'Country already added' });
+    }
 
     // Create a new country document with uppercase fields
-    const country = new Country({ 
-      name: nameUpper, 
-      capital: capitalUpper, 
-      continent: continentUpper 
+    const country = new Country({
+      name: nameUpper,
+      capital: capitalUpper,
+      continent: continentUpper,
+      population, // Population is typically a number, so no need to change to uppercase
+      demonym: demonymUpper,
+      currency: currencyUpper,
+      language: languageUpper, // Uppercase the language entries
+      numericCode: numericCodeUpper,
+      timeZone: timeZoneUpper, // Uppercase the time zone entries
+      flag,
     });
+
+    // Save the new country document
     await country.save();
 
-    res.status(201).json({ message: 'Country added successfully' });
+    res.status(201).json({ message: 'Country added successfully', country });
   } catch (error) {
-    res.status(500).json({ message: 'Registration failed', error: error.message });
+    res.status(500).json({ message: 'Failed to add country', error: error.message });
+  }
+});
+
+
+// Get all countries with name, flag, and capital
+router.get('/countries', async (req, res) => {
+  try {
+    // Fetch 'name', 'flag', and 'capital' fields of all countries
+    const countries = await Country.find().select('name flag capital -_id');
+
+    if (countries.length === 0) {
+      return res.status(404).json({ message: 'No countries found' });
+    }
+
+    // Respond with the list of countries including name, flag, and capital
+    res.status(200).json(countries);
+  } catch (error) {
+    console.error('Error retrieving countries:', error);
+    res.status(500).json({ message: 'Error retrieving countries', error: error.message });
+  }
+});
+
+// Get all Asian countries with name, flag, and capital
+router.get('/countries/asia', async (req, res) => {
+  try {
+    // Fetch 'name', 'flag', and 'capital' fields of countries from Asia
+    const countries = await Country.find({ continent: 'ASIA' }).select('name flag capital -_id');
+
+    if (countries.length === 0) {
+      return res.status(404).json({ message: 'No countries found' });
+    }
+
+    // Respond with the list of countries including name, flag, and capital
+    res.status(200).json(countries);
+  } catch (error) {
+    console.error('Error retrieving countries:', error);
+    res.status(500).json({ message: 'Error retrieving countries', error: error.message });
+  }
+});
+
+// Get all Asian countries with name, flag, and capital
+router.get('/countries/africa', async (req, res) => {
+  try {
+    // Fetch 'name', 'flag', and 'capital' fields of countries from Asia
+    const countries = await Country.find({ continent: 'AFRICA' }).select('name flag capital -_id');
+
+    if (countries.length === 0) {
+      return res.status(404).json({ message: 'No countries found' });
+    }
+
+    // Respond with the list of countries including name, flag, and capital
+    res.status(200).json(countries);
+  } catch (error) {
+    console.error('Error retrieving countries:', error);
+    res.status(500).json({ message: 'Error retrieving countries', error: error.message });
+  }
+});
+
+
+// Get all Asian countries with name, flag, and capital
+router.get('/countries/europe', async (req, res) => {
+  try {
+    // Fetch 'name', 'flag', and 'capital' fields of countries from Asia
+    const countries = await Country.find({ continent: 'EUROPE' }).select('name flag capital -_id');
+
+    if (countries.length === 0) {
+      return res.status(404).json({ message: 'No countries found' });
+    }
+
+    // Respond with the list of countries including name, flag, and capital
+    res.status(200).json(countries);
+  } catch (error) {
+    console.error('Error retrieving countries:', error);
+    res.status(500).json({ message: 'Error retrieving countries', error: error.message });
+  }
+});
+
+
+// Get all Asian countries with name, flag, and capital
+router.get('/countries/northamerica', async (req, res) => {
+  try {
+    // Fetch 'name', 'flag', and 'capital' fields of countries from Asia
+    const countries = await Country.find({ continent: 'NORTH AMERICA' }).select('name flag capital -_id');
+
+    if (countries.length === 0) {
+      return res.status(404).json({ message: 'No countries found' });
+    }
+
+    // Respond with the list of countries including name, flag, and capital
+    res.status(200).json(countries);
+  } catch (error) {
+    console.error('Error retrieving countries:', error);
+    res.status(500).json({ message: 'Error retrieving countries', error: error.message });
+  }
+});
+
+
+// Get all Asian countries with name, flag, and capital
+router.get('/countries/southamerica', async (req, res) => {
+  try {
+    // Fetch 'name', 'flag', and 'capital' fields of countries from Asia
+    const countries = await Country.find({ continent: 'SOUTH AMERICA' }).select('name flag capital -_id');
+
+    if (countries.length === 0) {
+      return res.status(404).json({ message: 'No countries found' });
+    }
+
+    // Respond with the list of countries including name, flag, and capital
+    res.status(200).json(countries);
+  } catch (error) {
+    console.error('Error retrieving countries:', error);
+    res.status(500).json({ message: 'Error retrieving countries', error: error.message });
+  }
+});
+
+
+// Get all Asian countries with name, flag, and capital
+router.get('/countries/australia', async (req, res) => {
+  try {
+    // Fetch 'name', 'flag', and 'capital' fields of countries from Asia
+    const countries = await Country.find({ continent: 'OCEANIA' }).select('name flag capital -_id');
+
+    if (countries.length === 0) {
+      return res.status(404).json({ message: 'No countries found' });
+    }
+
+    // Respond with the list of countries including name, flag, and capital
+    res.status(200).json(countries);
+  } catch (error) {
+    console.error('Error retrieving countries:', error);
+    res.status(500).json({ message: 'Error retrieving countries', error: error.message });
+  }
+});
+
+
+// Get all Asian countries with name, flag, and capital
+router.get('/countries/antarctica', async (req, res) => {
+  try {
+    // Fetch 'name', 'flag', and 'capital' fields of countries from Asia
+    const countries = await Country.find({ continent: 'ANTARCTICA' }).select('name flag capital -_id');
+
+    if (countries.length === 0) {
+      return res.status(404).json({ message: 'No countries found' });
+    }
+
+    // Respond with the list of countries including name, flag, and capital
+    res.status(200).json(countries);
+  } catch (error) {
+    console.error('Error retrieving countries:', error);
+    res.status(500).json({ message: 'Error retrieving countries', error: error.message });
   }
 });
 
 
 
+// passport.authenticate('jwt', { session: false }),
+
 // Get countries by name
-router.get('/country/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
+router.get('/country/:name',  async (req, res) => {
   const { name } = req.params;
 
   if (!name) {
@@ -131,7 +309,4 @@ router.delete('/country/:name', passport.authenticate('jwt', { session: false })
 });
 
 
-
-  
-
-  module.exports = router;
+module.exports = router;
