@@ -1,0 +1,12 @@
+{
+  "name": "enhanced-random-username-generator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "Test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
