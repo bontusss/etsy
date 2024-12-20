@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const Country = require('../models/country');
+const Score = require('../models/score');
 
 const router = express.Router();
 
@@ -242,6 +243,48 @@ router.get('/country/:name',  async (req, res) => {
     res.status(500).json({ message: 'Error retrieving country', error: error.message });
   }
 });
+
+
+router.get('/quiz-questions', async (req, res) => {
+  try {
+    const questions = await Country.aggregate([{ $sample: { size: 10 } }])
+      .project({ name: 1, capital: 1, _id: 0 }); // Fetch random 10 countries
+    res.status(200).json(questions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch quiz questions' });
+  }
+});
+
+
+
+// Save Score Endpoint
+router.post('/save-score',  passport.authenticate('jwt', { session: false }), async (req, res) => {
+  const { score, total } = req.body;
+
+  if (typeof score !== 'number' || typeof total !== 'number') {
+    return res.status(400).json({ message: 'Invalid data' });
+  }
+
+  try {
+    // Create a new score document
+    const newScore = new Score({
+      userId: req.user._id,  // Assuming your user info is stored in req.user
+      score,
+      total
+    });
+
+    // Save the score to the database
+    await newScore.save();
+
+    console.log(`User ${req.user.email} scored ${score} out of ${total}`);
+    res.json({ message: 'Score saved successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 
 
 // Update country details by name
