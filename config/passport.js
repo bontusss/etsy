@@ -1,32 +1,39 @@
 const { Strategy: LocalStrategy } = require('passport-local');
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const User = require('../models/user');
-const Country = require('../models/country')
 const passport = require('passport');
 
 module.exports = function (passport) {
-    // Local Strategy
+    // Local Strategy for session-based authentication
     passport.use(
         new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
-          console.log("JWT strategy triggered"); // Check if this line is logged
             try {
                 const user = await User.findOne({ email });
-                if (!user) return done(null, false, { message: 'User not found' });
-
+                if (!user) {
+                    return done(null, false, { message: 'Email is not registered.' });
+                }
+    
+                if (!user.isVerified) {
+                    return done(null, false, { message: 'Please verify your email before logging in.' });
+                }
+    
                 const isMatch = await user.comparePassword(password);
-                if (!isMatch) return done(null, false, { message: 'Incorrect password' });
-
+                if (!isMatch) {
+                    return done(null, false, { message: 'Incorrect password.' });
+                }
+    
                 return done(null, user);
             } catch (error) {
                 return done(error);
             }
         })
     );
+    
 
-    // JWT Strategy
+    // JWT Strategy for token-based authentication
     const jwtOptions = {
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        secretOrKey: process.env.JWT_SECRET // Replace this with an environment variable in production
+        secretOrKey: process.env.JWT_SECRET // Replace with an environment variable in production
     };
 
     passport.use(
@@ -42,10 +49,17 @@ module.exports = function (passport) {
         })
     );
 
-    // Serialize and deserialize users for session handling
+    // Serialize user for session-based authentication
     passport.serializeUser((user, done) => done(null, user.id));
-    passport.deserializeUser((id, done) => {
-        User.findById(id, (err, user) => done(err, user));
+
+    // Deserialize user for session-based authentication
+    passport.deserializeUser(async (id, done) => {
+        try {
+            const user = await User.findById(id);
+            done(null, user);
+        } catch (error) {
+            done(error, null);
+        }
     });
 };
 

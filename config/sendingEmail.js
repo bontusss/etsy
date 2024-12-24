@@ -9,14 +9,18 @@ const sendVerificationEmail = async (email, verificationCode) => {
     },
   });
 
+  const verifyLink = `http://localhost:3000/verification?code=${verificationCode}`; // Front-end URL
+
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
     subject: 'Verify your email',
     html: `
-      <h1>Welcome!</h1>
-      <p>Please verify your email by clicking the link below:</p>
-      <a style="color: blue;" href="http://localhost:4000/api/verify-email?code=${verificationCode}">Verify Email</a>
+      <div style = "margin: auto; text-align: center;">
+        <h1 style = "color: #00c3ff">Welcome to Globingo</h1>
+        <p>Please verify your email by clicking the link below:</p>
+        <a style="color: goldenrod;" href="http://localhost:4000/api/verify-email?code=${verificationCode}">Verify Email</a>
+      </div>
     `,
   };
 
@@ -48,10 +52,12 @@ const sendPasswordResetEmail = async (email, resetToken) => {
     to: email,
     subject: 'Password Reset Request',
     html: `
-      <h1>Password Reset</h1>
-      <p>You requested a password reset. Click the link below to reset your password:</p>
-      <a style="color: blue;" href="${resetLink}">Reset Password</a>
-      <p>If you did not request this, please ignore this email.</p>
+      <div style = "margin: auto; text-align: center;">
+        <h1 style = "color: #00c3ff">Password Reset</h1>
+        <p>You requested a password reset. Click the link below to reset your password:</p>
+        <a style="color: goldenrod;" href="${resetLink}">Reset Password</a>
+        <p>If you did not request this, please ignore this email.</p>
+      </div>  
     `,
   };
 
