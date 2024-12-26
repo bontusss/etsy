@@ -1,15 +1,19 @@
 const nodemailer = require('nodemailer');
 
+const baseUrl = process.env.NODE_ENV === 'production'
+  ? 'https://etsy-6s9o.onrender.com'
+  : 'http://localhost:4000';
+
 const sendVerificationEmail = async (email, verificationCode) => {
   const transporter = nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE, // Example: 'gmail'
+    service: process.env.EMAIL_SERVICE,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
   });
 
-  const verifyLink = `http://localhost:3000/verification?code=${verificationCode}`; // Front-end URL
+  const verifyLink = `${baseUrl}/api/verify-email?code=${verificationCode}`;
 
   const mailOptions = {
     from: "Globingo",
@@ -19,7 +23,7 @@ const sendVerificationEmail = async (email, verificationCode) => {
       <div style = "margin: auto; text-align: center;">
         <h1 style = "color: #00c3ff">Welcome to Globingo</h1>
         <p>Please verify your email by clicking the link below:</p>
-        <a style="color: goldenrod;" href="http://localhost:4000/api/verify-email?code=${verificationCode}">Verify Email</a>
+        <a style="color: goldenrod;" href="${verifyLink}">Verify Email</a>
       </div>
     `,
   };
@@ -34,19 +38,16 @@ const sendVerificationEmail = async (email, verificationCode) => {
 };
 
 const sendPasswordResetEmail = async (email, resetToken) => {
-  // Define the transporter
   const transporter = nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE, // e.g., 'gmail'
+    service: process.env.EMAIL_SERVICE,
     auth: {
-      user: process.env.EMAIL_USER, // Your email address
-      pass: process.env.EMAIL_PASS, // Your email password or app password
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
-  // Create the reset link
-  const resetLink = `http://localhost:3000/reset-password?code=${resetToken}`; // Front-end URL
+  const resetLink = `http://localhost:3000/reset-password?code=${resetToken}`;
 
-  // Define email options
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
@@ -61,7 +62,6 @@ const sendPasswordResetEmail = async (email, resetToken) => {
     `,
   };
 
-  // Send the email
   try {
     console.log('Sending password reset email to:', email);
     console.log('Reset link:', resetLink);
@@ -75,6 +75,4 @@ const sendPasswordResetEmail = async (email, resetToken) => {
   }
 };
 
-
 module.exports = { sendVerificationEmail, sendPasswordResetEmail };
-
