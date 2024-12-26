@@ -12,7 +12,7 @@ const sendVerificationEmail = async (email, verificationCode) => {
   const verifyLink = `http://localhost:3000/verification?code=${verificationCode}`; // Front-end URL
 
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: "Globingo",
     to: email,
     subject: 'Verify your email',
     html: `

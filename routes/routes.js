@@ -259,7 +259,7 @@ router.get('/quiz-questions', async (req, res) => {
 
 
 // Save Score Endpoint
-router.post('/save-score',  passport.authenticate('jwt', { session: false }), async (req, res) => {
+router.post('/save-score', passport.authenticate('local', { session: true }), async (req, res) => {
   const { score, total } = req.body;
 
   if (typeof score !== 'number' || typeof total !== 'number') {
@@ -267,14 +267,16 @@ router.post('/save-score',  passport.authenticate('jwt', { session: false }), as
   }
 
   try {
-    // Create a new score document
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
     const newScore = new Score({
-      userId: req.user._id,  // Assuming your user info is stored in req.user
+      userId: req.user._id,
       score,
       total
     });
 
-    // Save the score to the database
     await newScore.save();
 
     console.log(`User ${req.user.email} scored ${score} out of ${total}`);
@@ -284,6 +286,7 @@ router.post('/save-score',  passport.authenticate('jwt', { session: false }), as
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 
 

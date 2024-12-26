@@ -90,7 +90,6 @@ router.get('/verify-email', async (req, res) => {
 
 
 // Login Route
-// Login Route with custom failure callback
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
       if (err) {

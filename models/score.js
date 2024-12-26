@@ -12,4 +12,3 @@ module.exports = mongoose.model('Score', scoreSchema);
 
 // const Score = mongoose.model('Score', scoreSchema);
 
-// module.exports = Score;
