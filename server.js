@@ -10,10 +10,14 @@ require('./config/passport')(passport);
 const app = express();
 
 // Allow all origins (for testing purposes)
-app.use(cors({
-  origin: '*', // Allow all origins
+const corsOptions = {
+  origin: (origin, callback) => {
+    callback(null, true);
+  },
   credentials: true, // Allow cookies (session cookies)
-}));
+};
+
+app.use(cors(corsOptions));
 
 // Middleware
 app.use(express.json());
@@ -37,7 +41,7 @@ app.get('/api/auth-route', (req, res) => {
 });
 
 // Handle Preflight Requests
-app.options('*', cors());
+app.options('*', cors(corsOptions));
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
