@@ -46,7 +46,7 @@ const sendPasswordResetEmail = async (email, resetToken) => {
     },
   });
 
-  const resetLink = `http://localhost:3000/reset-password?code=${resetToken}`;
+  const resetLink = `https://globingo.netlify.app/reset-password?code=${resetToken}`;
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
